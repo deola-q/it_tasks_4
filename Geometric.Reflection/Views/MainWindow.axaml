@@ -1,0 +1,112 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Geometric.Reflection.ViewModels"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="Geometric.Reflection.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Reflection Geometry App">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Путь к сборке -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBox Text="{Binding AssemblyPath}" Watermark="Путь к DLL" Width="300" Margin="0,0,10,0"/>
+            <Button Content="Обзор..." Click="BrowseAssembly_Click" Margin="0,0,10,0"/>
+            <Button Content="Загрузить" Command="{Binding LoadAssemblyCommand}"/>
+        </StackPanel>
+
+        <!-- Статус -->
+        <TextBlock Grid.Row="1" Text="{Binding StatusMessage}" Margin="0,0,0,10"/>
+
+        <!-- Классы -->
+        <StackPanel Grid.Row="2" Margin="0,0,0,10">
+            <TextBlock Text="Классы фигур:" FontWeight="Bold"/>
+            <ListBox ItemsSource="{Binding ClassNames}" 
+                     SelectedItem="{Binding SelectedClassName}"
+                     Height="150" SelectionChanged="OnClassSelected"/>
+        </StackPanel>
+
+        <!-- Методы и конструкторы -->
+        <Grid Grid.Row="3" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Методы и свойства -->
+            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <TextBlock Text="Методы и свойства:" FontWeight="Bold"/>
+                <ListBox ItemsSource="{Binding Methods}" 
+                         SelectedItem="{Binding SelectedMethod}"
+                         Height="250" SelectionChanged="OnMethodSelected">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical" Margin="2">
+                                <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding ReturnType.Name, StringFormat='Возвращает: {0}'}"/>
+                                <TextBlock Text="{Binding ., Converter={StaticResource StringFormatConverter}, ConverterParameter='Параметры: {0}'}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+
+            <!-- Конструкторы -->
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="Параметры метода:" FontWeight="Bold"/>
+            <ItemsControl ItemsSource="{Binding Parameters}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="{Binding Name}" Width="100"/>
+                            <TextBlock Text="{Binding Type.Name}" Width="150" Margin="10,0"/>
+                            <TextBox Text="{Binding Value}" Width="200"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            </StackPanel>
+        </Grid>
+
+
+        <!-- Результат и кнопки управления -->
+        <Grid Grid.Row="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <ScrollViewer Grid.Column="0" Margin="0,0,10,0" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="Результат:" FontWeight="Bold"/>
+                    <TextBox Text="{Binding Result}" AcceptsReturn="True" TextWrapping="Wrap"
+                            Height="200" IsReadOnly="True"/>
+                </StackPanel>
+            </ScrollViewer>
+            
+            <StackPanel Grid.Column="1" Orientation="Vertical">
+                <Button Content="Выполнить метод" 
+                        Command="{Binding ExecuteMethodCommand}"
+                        Width="150" Height="30" Margin="0,0,0,10"/>
+                <Button Content="Показать состояние" 
+                        Command="{Binding ShowCurrentStateCommand}"
+                        Width="150" Height="30"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
